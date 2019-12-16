@@ -80,9 +80,23 @@ module Enumerable
         end
         return memo
     end
+
+    def my_map_proc_block(&arg)
+        self_obj = self
+        # if self is a range
+        self_obj = self.to_a if self.is_a? Range
+        mapped_array = []
+        self_obj.my_each do |item|
+            arg.nil? ? mapped_array << yield(item) :  mapped_array << arg.call(item)
+        end
+        mapped_array
+    end
+
+
 end
 
 
+puts "my_each"
 
 [1,2,3,4,"hello"].my_each do |x|
     p x
@@ -140,3 +154,24 @@ longest = %w{ cat sheep bear }.my_inject do |memo, word|
  end
 
  puts longest
+
+ puts "--------------------------"
+ puts "multiply_els"
+
+ def multiply_els(arr)
+    result = arr.my_inject { |total, item| total * item }
+ end
+
+ puts multiply_els([2,4,5]) #=> 40
+
+ puts "--------------------------"
+ puts "my_map_proc_block"
+
+ mul = Proc.new { |i| i*i }
+ cat = Proc.new { "cat" }
+
+p (1..4).my_map_proc_block(&mul)      #=> [1, 4, 9, 16]
+p (1..4).my_map_proc_block(&cat)   #=> ["cat", "cat", "cat", "cat"]
+
+p (1..4).my_map_proc_block { |i| i*i }      #=> [1, 4, 9, 16]
+p (1..4).my_map_proc_block { "cat"  }   #=> ["cat", "cat", "cat", "cat"]
